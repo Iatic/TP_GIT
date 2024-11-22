@@ -1,18 +1,24 @@
-CC=gcc
-CFLAGS=-O3 -g
+CC = gcc
+CFLAGS = -O3 -g -fPIC
+LDFLAGS = -L. -lppm
 
-.PHONY: all
+.PHONY: all clean
+
+# Cible par défaut pour construire tout
 all: test mandel
 
-libppm.so : ppm.c
-	$(CC) $(CFLAGS) -fPIC -shared $^ -o $@
+# Construire la bibliothèque partagée
+libppm.so: ppm.c
+	$(CC) $(CFLAGS) -shared $^ -o $@
 
+# Construire le programme test
 test: main.c libppm.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -lppm -L. -o $@
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
+# Construire le programme mandel
 mandel: mandel.c libppm.so
-	$(CC) $(CFLAGS) $(LDFLAGS) $< -lppm -L. -o $@
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
 
-.PHONY: clean
+# Nettoyage des fichiers générés
 clean:
-	rm -fr $(TARGET) *.so
+	rm -f test mandel libppm.so *.ppm
